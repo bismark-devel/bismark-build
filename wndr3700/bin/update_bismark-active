@@ -1,0 +1,12 @@
+#!/bin/bash
+# Updates the pkg files from the current svn copy
+
+SVNSRC=~/src/bismark/device/OpenWrt_common
+PKGSRC=~/src/bismark-packages/utils/bismark-active
+
+svn update $SVNSRC
+cp $SVNSRC/scripts/bismark-{measure-active,tr,rtr,ping,netperf,dns,ditg,sp} $PKGSRC/files/scripts
+mkdir -p $PKGSRC/files/lib/bismark
+cp $SVNSRC/lib/*.list $PKGSRC/files/lib/bismark
+
+echo "Please remember to go into $PKGSRC and git commit any changes made."

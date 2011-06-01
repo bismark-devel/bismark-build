@@ -1,0 +1,105 @@
+
+config 'defaults'
+	option 'syn_flood' '1'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+
+config 'zone'
+	option 'name' 'lan'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+
+config 'zone'
+	option 'name' 'guest0'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'guest1'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'babel0'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'babel1'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'ACCEPT'
+
+config 'zone'
+	option 'name' 'wan'
+	option 'input' 'REJECT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+	option 'masq' '1'
+	option 'mtu_fix' '1'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'lan'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'guest0'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'guest1'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'babel0'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'babel1'
+
+config 'forwarding'
+	option 'src' 'guest0'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'guest1'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'babel0'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'babel1'
+	option 'dest' 'wan'
+
+config 'forwarding'
+	option 'src' 'guest0'
+	option 'dest' 'wan'
+
+config 'rule'
+	option 'src' 'wan'
+	option 'proto' 'udp'
+	option 'dest_port' '68'
+	option 'target' 'ACCEPT'
+	option 'family' 'ipv4'
+
+config 'rule'
+	option 'src' 'wan'
+	option 'proto' 'icmp'
+	option 'icmp_type' 'echo-request'
+	option 'target' 'ACCEPT'
+
+config 'include'
+	option 'path' '/etc/firewall.user'
+

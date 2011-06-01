@@ -1,0 +1,95 @@
+# This file is interpreted as shell script.
+# Put your custom iptables rules here, they will
+# be executed with each firewall (re-)start.
+
+# Allow forwarding in a NAT like way
+# ip6tables -A FORWARD -i br-lan -j ACCEPT
+# ip6tables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Since we are doing complex forwarding elsewhere, can't do it that way
+# more complex ip6tables are bogus in openwrt gui so
+
+# These rules are still being debugged but may serve as an example
+
+exit 0
+
+iptables -I INPUT 1 -p 41 -j ACCEPT
+
+MAILSERVER=PUTINYOURMAILSERVERADDRESS
+TCP="80 433 9418 222" # FIXME: Add Transmission Port
+BOTH="53" 
+UDP="123 1024:65535"
+
+# maybe needs -s for tunnels
+
+ip6tables -F
+
+ip6tables -A INPUT  -p icmpv6 -j ACCEPT
+ip6tables -I OUTPUT -p icmpv6 -j ACCEPT
+ip6tables -I FORWARD -p icmpv6 -j ACCEPT
+
+# Allow anything on the local loopback link
+ip6tables -A INPUT  -i lo -j ACCEPT
+ip6tables -A OUTPUT -o lo -j ACCEPT
+
+# Allow anything out on the internet
+ip6tables -A OUTPUT -o 6to4-v6 -j ACCEPT
+
+# Allow the localnet access us:
+ip6tables -A INPUT  -i br-lan -j ACCEPT
+ip6tables -A OUTPUT -o br-lan -j ACCEPT
+
+# Filter all packets that have RH0 headers:
+ip6tables -A INPUT -m rt --rt-type 0 -j DROP
+ip6tables -A FORWARD -m rt --rt-type 0 -j DROP
+ip6tables -A OUTPUT -m rt --rt-type 0 -j DROP
+
+# Allow Link-Local addresses
+ip6tables -A INPUT -s fe80::/10 -j ACCEPT
+ip6tables -A OUTPUT -s fe80::/10 -j ACCEPT
+
+# Allow multicast
+ip6tables -A INPUT -s ff00::/8 -j ACCEPT
+ip6tables -A OUTPUT -s ff00::/8 -j ACCEPT
+
+# Allow forwarding
+ip6tables -A FORWARD -i br-lan -j ACCEPT
+ip6tables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow forwarding
+ip6tables -A FORWARD -i br-guest -j ACCEPT
+ip6tables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Open up bidirectional ports
+
+for i in $BOTH
+do
+ip6tables -A FORWARD -p tcp --dport $i -j ACCEPT
+ip6tables -A FORWARD -p udp --dport $i -j ACCEPT
+done
+
+for i in $TCP
+do
+ip6tables -A FORWARD -p tcp --dport $i -j ACCEPT
+done
+
+for i in $UDP
+do
+ip6tables -A FORWARD -p udp --dport $i -j ACCEPT
+done
+
+# Mail over ipv6
+
+#ip6tables -A FORWARD -p tcp -d $MAILSERVER --dport 25 -j ACCEPT
+#ip6tables -A FORWARD -p tcp -d $MAILSERVER --dport 143 -j ACCEPT
+#ip6tables -A FORWARD -p tcp -d $MAILSERVER --dport 993 -j ACCEPT
+
+#log the activity that will get dropped (optional)
+# ip6tables -A INPUT -j LOG
+# ip6tables -A FORWARD -j LOG
+# ip6tables -A OUTPUT -j LOG
+
+# Set the default policy
+ip6tables -P INPUT   DROP
+ip6tables -P FORWARD DROP
+ip6tables -P OUTPUT  DROP

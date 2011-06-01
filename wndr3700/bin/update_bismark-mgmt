@@ -1,0 +1,24 @@
+#!/bin/bash
+# Updates the pkg files from the current svn copy
+
+SVNSRC=~/src/bismark/device/OpenWrt_common
+PKGSRC=~/src/bismark-packages/utils/bismark-mgmt
+
+svn update $SVNSRC
+
+# Update scripts
+cp $SVNSRC/scripts/bismark-{action,bootstrap,probe,rshell,scp} $PKGSRC/files/scripts
+
+# Update conf files
+cp $SVNSRC/etc/{bismark.conf,bismark.initd,crontab} $PKGSRC/files/etc
+
+VERSION=$(svn info $SVNSRC | awk '/^Rev/{ print $2 ; exit }')
+sed -i -e "/^VERSION=/ s/=.*/=$VERSION/" $PKGSRC/files/etc/bismark.conf
+
+# Update SSH keys
+cp $SVNSRC/keys/{authorized_keys,bismark_key,bismark_key.pub,known_hosts} $PKGSRC/files/keys
+
+# Update libraries
+cp $SVNSRC/lib/functions.inc.sh $PKGSRC/files/lib
+
+echo "Please remember to go into $PKGSRC and git commit any changes made."
